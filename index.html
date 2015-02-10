@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <meta charset="utf-8">
+  <title>JS Bin</title>
+</head>
+<body>
+    <label for="related-id">Paste a YouTube video ID</label>
+    <div class="input-group">
+        <input title="The part after the /watch?v=" placeholder="FOR EXAMPLE: oA0dyLM8X6E" type="text" class="form-control" id="related-id">
+        <span class="input-group-btn">
+        <button class="btn btn-default" type="button" id="get-more">Go!</button>
+      </span>
+    </div><!-- /input-group -->
+  <div id="results"></div>
+<script id="jsbin-javascript">
+jQuery(function($){
+  
+      var d = {
+        part:'snippet',
+        type:'video',
+        relatedToVideoId:'oA0dyLM8X6E',
+        key:'AIzaSyBxEaM5O2ImjXq0qcoJjSKBx5ZuUZ0s2lQ',
+        maxResults: 10
+      },
+      $results = $('#results'),
+      $moreBtn = $('#get-more'),
+      $relatedId = $('#related-id'),
+      list = [];
+  
+  
+  var getRelated = function( relatedId ){
+    
+    d.relatedToVideoId = relatedId || $relatedId.val() || d.relatedToVideoId;
+    
+    $.getJSON('https://www.googleapis.com/youtube/v3/search', d, function(data){
+      
+      list = [];
+      
+      console.log( data.items );
+      
+      data.items.forEach(function(item){
+      
+        list.push([
+          '<a href="https://www.youtube.com/watch?v='+ item.id.videoId +'" target="_blank">',
+            '<img src="'+ item.snippet.thumbnails.default.url +'">',
+          '</a>',
+          item.snippet.title,
+          ' - <a href="#" class="js-get-related" data-id="'+ item.id.videoId +'">Get Related</a>'
+        ].join(''));
+      
+      });
+      
+      $results.html(list.join('<br>')); 
+    
+    });
+    
+  };
+  
+  $moreBtn.click(function(){ getRelated(); });
+  
+  $results.on('click', '.js-get-related', function( e ){
+    
+    e.preventDefault();
+    
+    var id = $(this).data('id');
+    
+    getRelated(id);
+    
+  });
+  
+});
+</script>
+</body>
+</html>
